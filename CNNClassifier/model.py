@@ -30,13 +30,14 @@ class CNNClassifier(nn.Module):
 
 
 		x = self.embedding(x) # (N,W,D)
+		#x= Variable(x)
 		x = x.unsqueeze(1) #(N,1,W,D)
 		x = [F.relu(conv(x)).squeeze(3) for conv in self.convs]
 		x = [F.max_pool1d(i, i.size(2)).squeeze(2) for i in x]
 		x = torch.cat(x,1)
 
 		x = self.dropout(x)
-		logit = self.fc(x)
+		out = self.fc(x)
 
-		return logit 
+		return out 
 
