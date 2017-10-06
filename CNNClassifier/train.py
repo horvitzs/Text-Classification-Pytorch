@@ -26,12 +26,13 @@ def train(train_loader, dev_loader, model, cuda, learnign_rate, num_epochs):
 			target.data.sub_(1)  # index 
 			if cuda:
 				feature, target = feature.cuda(), target.cuda()
-			#if feature.size()[1] < 10:
-				#continue 
+			#if feature.size()[1] < 5:
+			#	continue 
 
 			#Forward, Backward, Optimize 
 			optimizer.zero_grad()
 			output = model(feature)
+			_, predicted = torch.max(output, 1)
 			loss = criterion(output, target)
 			loss.backward()
 			optimizer.step()
@@ -40,12 +41,14 @@ def train(train_loader, dev_loader, model, cuda, learnign_rate, num_epochs):
 
 
 
-			if(i+1) % 100 == 0:
+			if(step) % 100 == 0:
 				print ('Epoch [%d/%d], Steps [%d/%d], Loss: %.4f'  
 					%(epoch+1, num_epochs, step,  num_batch * num_epochs, loss.data[0]))
 
+
 			if(step) % 1000 == 0:
 				eval(dev_loader, model, cuda)
+				#print(predicted[:10])
 
 
 
@@ -84,6 +87,8 @@ def eval(test_loader, model, cuda):
 
 def predict(sample_text, model, text_field, label_field):
 
+	model.eval()
+
 	text = text_field.preprocess(sample_text)
 	text = [[text_field.vocab.stoi[x] for x in text]]
 	x = text_field.tensor_type(text)
@@ -93,7 +98,7 @@ def predict(sample_text, model, text_field, label_field):
 	output = model(x)
 	_, predicted = torch.max(output, 1)
 
-	return label_feild.vocab.itos[predicted.data[0][0]+1]
+	return label_field.vocab.itos[predicted.data[0]+1]
 
 
 
