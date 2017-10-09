@@ -9,6 +9,8 @@ import model
 import train 
 from data_utils.MR import MR
 from data_utils.News20 import News20
+from nltk.corpus import stopwords
+import re 
 
 def SST_data_loader(text_field, label_field, vector, b_size, **kwargs):
 
@@ -65,14 +67,20 @@ def News_20_data_loader(text_field, label_field, vector, b_size, **kwargs):
 	return train_loader, dev_loader, test_loader
 
 
+def clean_str(strings):
+    #stop_words = list(set(stopwords.words('english')))
+    stop_words = ["`", "\'", "\"", ".", "\(", "\)", "," , '``', "''", '--']
+    filtered_words = [word for word in strings if word not in stop_words]
+    return filtered_words
+
 
 if __name__=='__main__':
 
 
-	glove = vocab.GloVe(name='6B', dim=100)
+	glove = vocab.GloVe(name = '42B', dim = 300)
 	iscuda = True
 	device_value = -1
-	batch_size = 20
+	batch_size = 18
 
 
 	if torch.cuda.is_available() is True:
@@ -86,12 +94,13 @@ if __name__=='__main__':
 	#load data
 	print("Load data...")
 	# to fix length : fix_length = a 
-	text_field = data.Field(lower = True, batch_first = True, fix_length = 300)
+	text_field = data.Field(lower = True, batch_first = True, fix_length = 300, preprocessing = clean_str)
+	#text_field.preprocessing = data.Pipeline(clean_str)
 	label_field = data.Field(sequential = False)
 
 	#device = - 1 : cpu 
-	train_loader, dev_loader, test_loader = News_20_data_loader(text_field, label_field, glove, batch_size, device = device_value, repeat = False)
-	#train_loader, dev_loader, test_loader = SST_data_loader(text_field, label_field, glove, batch_size, device = device_value, repeat = False)
+	#train_loader, dev_loader, test_loader = News_20_data_loader(text_field, label_field, glove, batch_size, device = device_value, repeat = False)
+	train_loader, dev_loader, test_loader = SST_data_loader(text_field, label_field, glove, batch_size, device = device_value, repeat = False)
 	#train_loader, dev_loader, test_loader = MR_data_loader(text_field, label_field, glove, batch_size, device = device_value, repeat = False)
 
 
@@ -102,11 +111,11 @@ if __name__=='__main__':
 	num_classes = len(label_field.vocab) - 1 
 	embed_dim = glove.vectors.size()[1]
 	kernel_sizes = [3,4,5]
-	dropout_p = 0.5
+	dropout_p = 0.7
 	embedding_weight = text_field.vocab.vectors
 
 	learnign_rate = 0.001
-	num_epochs = 200
+	num_epochs = 100
 
 
 	# model 

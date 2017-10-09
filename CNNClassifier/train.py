@@ -1,5 +1,3 @@
-import os 
-import sys
 import torch 
 import torch.autograd as autograd
 import torch.nn as nn
@@ -35,6 +33,8 @@ def train(train_loader, dev_loader, model, cuda, learnign_rate, num_epochs):
 			_, predicted = torch.max(output, 1)
 			loss = criterion(output, target)
 			loss.backward()
+			nn.utils.clip_grad_norm(model.parameters(), 3, norm_type = 2) # l2 constraint of 3
+
 			optimizer.step()
 
 			step += 1 
