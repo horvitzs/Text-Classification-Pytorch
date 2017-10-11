@@ -76,11 +76,12 @@ def clean_str(strings):
 
 if __name__=='__main__':
 
-
-	glove = vocab.GloVe(name = '42B', dim = 300)
+	   
+    #glove 6B 100 dim / glove 6B 300 dim /glove 42B 300 dim 
+	glove = vocab.GloVe(name = '6B', dim = 100)
 	iscuda = True
 	device_value = -1
-	batch_size = 18
+	batch_size = 40
 
 
 	if torch.cuda.is_available() is True:
@@ -99,8 +100,8 @@ if __name__=='__main__':
 	label_field = data.Field(sequential = False)
 
 	#device = - 1 : cpu 
-	#train_loader, dev_loader, test_loader = News_20_data_loader(text_field, label_field, glove, batch_size, device = device_value, repeat = False)
-	train_loader, dev_loader, test_loader = SST_data_loader(text_field, label_field, glove, batch_size, device = device_value, repeat = False)
+	train_loader, dev_loader, test_loader = News_20_data_loader(text_field, label_field, glove, batch_size, device = device_value, repeat = False)
+	#train_loader, dev_loader, test_loader = SST_data_loader(text_field, label_field, glove, batch_size, device = device_value, repeat = False)
 	#train_loader, dev_loader, test_loader = MR_data_loader(text_field, label_field, glove, batch_size, device = device_value, repeat = False)
 
 
@@ -117,21 +118,25 @@ if __name__=='__main__':
 	learnign_rate = 0.001
 	num_epochs = 100
 
+	#parameter of rnn 
+	num_layer  = 2 
+	num_hidden = 128
+
 
 	# model 
 	print("Load model...")
-	cnn = model.CNNClassifier(in_channels, out_channels, voca_size, embed_dim, num_classes, kernel_sizes, dropout_p, embedding_weight)
-
+	#classifier_model = model.CNNClassifier(in_channels, out_channels, voca_size, embed_dim, num_classes, kernel_sizes, dropout_p, embedding_weight)
+	classifier_model = model.RNNClassifier(voca_size, embed_dim, num_hidden, num_layer, num_classes, embedding_weight)
 	if iscuda:
-		cnn = cnn.cuda()
+		classifier_model = classifier_model.cuda()
 
 	# train 
 	print("Start Train...")
-	train.train(train_loader, dev_loader, cnn, iscuda, learnign_rate, num_epochs)
+	train.train(train_loader, dev_loader, classifier_model, iscuda, learnign_rate, num_epochs)
 
 	# eval 
 	print("Evaluation")
-	train.eval(test_loader, cnn, iscuda) 
+	train.eval(test_loader, classifier_model, iscuda) 
 
 
 	
