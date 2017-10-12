@@ -121,11 +121,16 @@ if __name__=='__main__':
 	num_layer  = 2 
 	num_hidden = 128
 
+	#param of rcnn
+	num_sm_hidden = 100 
+
 
 	# model 
 	print("Load model...")
 	#classifier_model = model.CNNClassifier(in_channels, out_channels, voca_size, embed_dim, num_classes, kernel_sizes, dropout_p, embedding_weight)
-	classifier_model = model.RNNClassifier(voca_size, embed_dim, num_hidden, num_layer, num_classes, embedding_weight)
+	#classifier_model = model.RNNClassifier(voca_size, embed_dim, num_hidden, num_layer, num_classes, embedding_weight)
+	classifier_model = model.RCNN_Classifier(voca_size, embed_dim, num_hidden, num_sm_hidden, num_layer, num_classes, embedding_weight)
+
 	if iscuda:
 		classifier_model = classifier_model.cuda()
 
