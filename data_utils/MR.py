@@ -31,7 +31,7 @@ class MR(data.Dataset):
 		    for label in ['pos', 'neg']:
 		    	for fname in glob.iglob(os.path.join(path, label, '*.txt')):
 		            with open(fname, 'r') as f:
-		                text = f.readline()
+		                text = f.read()
 		            examples.append(data.Example.fromlist([text, label], fields))
 
 

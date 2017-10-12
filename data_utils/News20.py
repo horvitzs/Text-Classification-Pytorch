@@ -37,7 +37,10 @@ class News20(data.Dataset):
 						f = open(fname, 'r')
 					else :
 						f = open(fname, 'r', encoding='latin-1')
-					text = f.readline()
+					text = f.read()
+					i = text.find('\n\n')  # skip header
+					if 0 < i:
+						text = text[i:]
 					examples.append(data.Example.fromlist([text, label], fields))
 
 		super(News20, self).__init__(examples, fields, **kwargs)

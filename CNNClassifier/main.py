@@ -10,7 +10,6 @@ import train
 from data_utils.MR import MR
 from data_utils.News20 import News20
 from nltk.corpus import stopwords
-import re 
 
 def SST_data_loader(text_field, label_field, vector, b_size, **kwargs):
 
@@ -68,8 +67,9 @@ def News_20_data_loader(text_field, label_field, vector, b_size, **kwargs):
 
 
 def clean_str(strings):
-    #stop_words = list(set(stopwords.words('english')))
-    stop_words = ["`", "\'", "\"", ".", "\(", "\)", "," , '``', "''", '--']
+    stop_words = list(set(stopwords.words('english')))
+    stop_characters = ["`", "\'", "\"", ".", "\(", "\)", "," , '``', "''", '--', '...']
+    stop_words.extend(stop_characters)
     filtered_words = [word for word in strings if word not in stop_words]
     return filtered_words
 
@@ -80,8 +80,8 @@ if __name__=='__main__':
     #glove 6B 100 dim / glove 6B 300 dim /glove 42B 300 dim 
 	glove = vocab.GloVe(name = '6B', dim = 100)
 	iscuda = True
-	device_value = -1
-	batch_size = 40
+	device_value = -1  	#device = - 1 : cpu 
+	batch_size = 20
 
 
 	if torch.cuda.is_available() is True:
@@ -95,11 +95,10 @@ if __name__=='__main__':
 	#load data
 	print("Load data...")
 	# to fix length : fix_length = a 
-	text_field = data.Field(lower = True, batch_first = True, fix_length = 300, preprocessing = clean_str)
-	#text_field.preprocessing = data.Pipeline(clean_str)
+	text_field = data.Field(lower = True, batch_first = True, fix_length = 200, preprocessing = clean_str)
 	label_field = data.Field(sequential = False)
 
-	#device = - 1 : cpu 
+    #select data set 
 	train_loader, dev_loader, test_loader = News_20_data_loader(text_field, label_field, glove, batch_size, device = device_value, repeat = False)
 	#train_loader, dev_loader, test_loader = SST_data_loader(text_field, label_field, glove, batch_size, device = device_value, repeat = False)
 	#train_loader, dev_loader, test_loader = MR_data_loader(text_field, label_field, glove, batch_size, device = device_value, repeat = False)
